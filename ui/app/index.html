@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>PPT Studio · 本地查看器</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">P</span>
+      <strong>PPT Studio</strong>
+      <span class="brand-sub" id="deck-title">载入中…</span>
+    </div>
+    <div class="topbar-actions">
+      <span class="hint" id="hint"></span>
+      <button class="btn" id="btn-export" title="调用本机 PowerPoint 重新渲染每页图片">
+        <span aria-hidden="true">⟳</span> 重新导出预览
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <nav class="thumbs" id="thumbs" aria-label="页面缩略图"></nav>
+
+    <section class="stage">
+      <div class="stage-bar">
+        <button class="btn btn-ghost" id="btn-prev" aria-label="上一页">‹</button>
+        <span class="page-indicator" id="page-indicator">– / –</span>
+        <button class="btn btn-ghost" id="btn-next" aria-label="下一页">›</button>
+        <span class="page-type" id="page-type"></span>
+      </div>
+      <div class="canvas" id="canvas">
+        <p class="canvas-empty" id="canvas-empty">尚未导出预览图。点击右上角「重新导出预览」（需本机 PowerPoint）。</p>
+        <img id="page-image" alt="当前页预览" hidden />
+      </div>
+    </section>
+
+    <aside class="panel" id="panel">
+      <div class="panel-head">
+        <strong>本页文本</strong>
+        <span class="panel-note">保存即回写 .page，重新导出后可见</span>
+      </div>
+      <div class="panel-body" id="text-list">
+        <p class="panel-empty" id="text-empty">–</p>
+      </div>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# ppt-studio 本地引擎依赖
+# 核心渲染链
+python-pptx>=1.0
+PyYAML
+# 公式链（LaTeX → OMML）
+latex2mathml
+lxml
+# 图表链（PPTD chart → PNG）
+plotly
+kaleido
+matplotlib
+# 图片 QA 拼图
+Pillow
