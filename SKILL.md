@@ -62,7 +62,7 @@ python scripts/handout_to_pptx.py --input-dir <讲义根目录> --out-dir <输�
 4. 页数：用户指定优先；大纲匹配页数；仅主题按内容自定
 
 ### step3. 生成
-生成前先读 `reference/pptd.md` 掌握格式与约束。设计参考按需读：`reference/slides_categories.md`（场景设计索引，细分文档在同目录 `slides_categories/`）、`reference/fonts.md`（字体体系）、`reference/shapes.md`（形状库）、`reference/general-poster.md`（海报场景）。
+生成前先读 `reference/pptd.md` 掌握格式与约束。设计参考按需读：`reference/slides_categories.md`（场景设计索引，细分文档在同目录 `slides_categories/`）、`reference/fonts.md`（字体体系）、`reference/typography.md`（字号层级、行高与间距规范，调整字号必读）、`reference/shapes.md`（形状库）、`reference/general-poster.md`（海报场景）。
 
 - **Replicate**：分析图片估计元素位置、字体与字号，尽量 1:1 复刻；无法用形状近似的照片/头像可从原图裁切为媒体资产。
 - **Edit**：将上传的 pptx 转为 pptd（或直接用 python-pptx 编辑），审查转换后页面结构与关键视觉细节，只动目标范围，不碰范围外内容。
@@ -80,7 +80,7 @@ python scripts/handout_to_pptx.py --input-dir <讲义根目录> --out-dir <输�
 
    （Windows PowerShell/cmd 中 `~` 需换成 `%USERPROFILE%`；路径以本 skill 实际安装位置为准）
 
-   产出每页 PNG（`pages/1.png…N.png`）与拼接总览 `overview.jpg`。逐页检查：图片清晰不变形；文字不压关键画面；元素坐标不越界；边界与配色对比足够；排版统一（对齐、间距、字号层级、页边距）；文本不溢出文本框；内容不被上层元素遮挡。
+   产出每页 PNG（`pages/1.png…N.png`）与拼接总览 `overview.jpg`。逐页检查：图片清晰不变形；文字不压关键画面；元素坐标不越界；边界与配色对比足够；排版统一（对齐、间距、页边距；字号层级对照 `reference/typography.md`）；文本不溢出文本框；内容不被上层元素遮挡。
 
    可疑页读全分辨率 `.qa-images/pages/<n>.png` 确认后修改对应 `.page`，`--force` 重跑复查，直到每页通过。
 
