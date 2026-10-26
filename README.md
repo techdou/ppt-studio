@@ -130,3 +130,13 @@ node ui/server.mjs --project /abs/path/<项目名> --port 55280
 ## 许可
 
 尚未指定开源许可证，保留所有权利。如需在自有项目中使用，请先开 issue 联系。
+
+
+## Changelog
+
+### v3.2.0 (2026-09-30)
+
+- 公式链修复：`export_pptx_local.py` 中公式 `fontSize` 注入原为空操作（遍历后 pass），现按 `a:rPr sz`（半点）真实写入——PowerPoint 精确生效，LibreOffice 预览忽略（按默认 ~18pt 渲染）。端到端验证：双公式（`$$..$$` 与 `\(..\)`）+ 28/18/14pt 三档字号全部正确注入。
+- SKILL.md 修正过时限制："LaTeX 公式退化为纯文本"改为实际的"整段公式支持 OMML，行内混排退化"，并新增「LaTeX 公式」小节（可运行示例 + 实战约束：元素独占、高度预算 0.4/0.65in、`\mathbb{I}` 字形坑、WARN 自检）。
+- description 补公式触发词（LaTeX 数学公式/OMML），标注与 omml-formula-skill 的分工边界（生成时内嵌 vs 成品文件批量注入）。
+- 视觉 QA 新增 LibreOffice 渲染兜底路径（soffice → pdftoppm），无 PowerPoint COM 的机器可用真实渲染代替纯结构化审查。

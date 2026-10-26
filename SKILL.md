@@ -1,8 +1,8 @@
 ---
 name: ppt-studio
-description: "Create, edit, replicate, and export presentations (PPT / slides / 演示文稿) fully offline with a built-in python-pptx engine — no cloud service or login required. Use for any presentation task: 新建 PPT、幻灯片、汇报/答辩/课件 slides，编辑或美化已有 pptx，从图片/PDF/网页复刻幻灯片，讲义/教材 Markdown 批量转课件 handout-to-slides，信息图 infographic，海报 poster。Not for: 仅提取 PPT 文字内容、忠实翻译幻灯片、仅摘要或信息整理，除非用户明确要求处理演示文稿。"
+description: "Create, edit, replicate, and export presentations (PPT / slides / 演示文稿) fully offline with a built-in python-pptx engine — no cloud service or login required. Use for any presentation task: 新建 PPT、幻灯片、汇报/答辩/课件 slides，编辑或美化已有 pptx，从图片/PDF/网页复刻幻灯片，讲义/教材 Markdown 批量转课件 handout-to-slides，信息图 infographic，海报 poster，幻灯片里的 LaTeX 数学公式渲染（原生可编辑 OMML 公式，非截图）。Not for: 仅提取 PPT 文字内容、忠实翻译幻灯片、仅摘要或信息整理，除非用户明确要求处理演示文稿；独立的 DOCX/PPTX 公式批量注入用 omml-formula-skill。"
 metadata:
-  version: "3.1.0"
+  version: "3.2.0"
   engine: "local (python-pptx) + plotly + OMML"
 ---
 
@@ -66,7 +66,12 @@ ppt-studio 是围绕 PPTD 格式的演示文稿创作与导出 skill。PPTD 是 
 
    可疑页读全分辨率 `.qa-images/pages/<n>.png` 确认后修改对应 `.page`，`--force` 重跑复查，直到每页通过。
 
-   无 PowerPoint 的环境跳过图片 QA，改为对 pages 的结构化审查（bounds/溢出/对比/层级），并在交付说明中注明跳过了图片 QA。
+   无 PowerPoint 的环境跳过图片 QA，改为对 pages 的结构化审查（bounds/溢出/对比/层级），并在交付说明中注明跳过了图片 QA。若有 LibreOffice，可用渲染兜底代替结构化审查（真实排版渲染，但字体替换可能使换行与 PowerPoint 略有差异，公式字号按默认渲染）：
+
+   ```bash
+   soffice --headless --convert-to pdf --outdir /tmp/<项目名>-qa <项目名>.pptx
+   pdftoppm -png -r 110 /tmp/<项目名>-qa/<项目名>.pdf /tmp/<项目名>-qa/page   # page-1.png…N.png
+   ```
 
 ### step5. 交付
 1. 项目目录自包含，永不交付孤立 manifest。**按内容自主命名**，不使用统一的 `deck`：
@@ -98,7 +103,28 @@ ppt-studio 是围绕 PPTD 格式的演示文稿创作与导出 skill。PPTD 是 
 
 4. **本地引擎支持范围**：text 全套富文本（p/span/strong/em/u/s/sub/sup/ul/ol/li/a/br、text-align/line-height/margin-top/font-size/color/background-color）；shape 40+ 常用形状 + custom path（M/L/H/V/C/Z）；image fit cover/contain/fill + crop + cropShape(roundRect/ellipse)；table 行列合并与 firstRowStyle/bodyStyles 样式链；line 直线/箭头；icon 以近似 emoji 渲染（约 60 个 FA 图标映射，未收录为 ★）；chart 原生支持 bar/line/area/pie/doughnut/scatter/radar/bubble；theme $ref 全链路；背景 solid/gradient；fade 转场；speaker notes。
 
-5. **已知限制**（导出时自动打印告警）：chart 的 waterfall/heatmap/treemap/sunburst/candlestick 输出占位框；icon 为 emoji 近似非品牌图标；LaTeX 公式退化为纯文本；贝塞尔曲线按折线渲染；云字体（MiSans 等）未安装时回退本机字体。
+5. **已知限制**（导出时自动打印告警）：chart 的 waterfall/heatmap/treemap/sunburst/candlestick 输出占位框；icon 为 emoji 近似非品牌图标；行内混排段落（同一 paragraph 内文字 + LaTeX 混写）不识别公式、整段退化为纯文本（公式必须独占一个 text 元素或段落，见下方「LaTeX 公式」）；贝塞尔曲线按折线渲染；云字体（MiSans 等）未安装时回退本机字体。
+
+## LaTeX 公式（原生 OMML）
+
+整段被 `$$…$$` 或 `\(…\)` 包围的 text 元素，导出时自动转换为 PowerPoint 原生可编辑公式（`m:oMathPara` 注入，latex2mathml + Office 自带 MML2OMML.XSL 链路，无网络依赖）：
+
+```yaml
+- elementType: text
+  elementId: formula-1
+  bounds: [60, 130, 840, 90]        # bounds 是数组 [x, y, w, h]，不是映射
+  content:
+    text: '$$\hat{p}_k = \frac{1+s_k\mu_k}{2+s_k}$$'   # YAML 单引号串保住反斜杠
+    fontSize: 18                    # 纯数字（pt），写入公式 a:rPr sz=1800
+```
+
+实战约束（2026-09-30 33 公式学术汇报全量验证）：
+
+- **公式必须独占元素/段落**；与文字混写同段不触发转换（`is_formula` 只认整段包围）。
+- **fontSize 双渲染器行为**：`a:rPr sz` 由 PowerPoint 精确生效；LibreOffice 预览忽略之（按默认 ~18pt 渲染）。版面高度按"LibreOffice 18pt 也不溢出"预算：无分数公式 ≥0.4in、含分数/求和限 ≥0.65in；公式是对象不换行，长公式（如 `r = σ(MLP([q_k; h; g]))` 全下标版 18pt 宽约 7.5in）两侧留 0.3in 避让。
+- 字形坑：`\mathbb{I}`（指示函数）在 LibreOffice 缺字形渲染为空白，用 `\mathrm{I}`；`\mathbb{R}` 正常。生僻数学字形先试渲染再交付。
+- 转换失败自动退化纯文本并打印 WARN，不会中断导出；交付前检查 warnings 段。
+- 独立的 DOCX/PPTX 公式占位符批量注入（已有成品文件补公式）走 `omml-formula-skill`；本 skill 覆盖"PPTD 生成时内嵌公式"。
 
 ## 讲义/教材 → 课件 PPT（批量）
 

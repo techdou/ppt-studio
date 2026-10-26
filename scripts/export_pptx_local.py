@@ -496,9 +496,14 @@ def add_text(text_el, slide, theme):
                     latex_omml.strip_delims(merged))
                 container = latex_omml.wrap_for_paragraph(omml)
                 p._p.append(container)
-                if base.get("fontSize"):
-                    for omr in container.iter("{%s}r" % "http://schemas.openxmlformats.org/officeDocument/2006/math"):
-                        pass
+                # 公式字号：a:rPr sz（半点）——PowerPoint 生效；LibreOffice 预览忽略（按默认字号渲染）
+                m_sz = re.sub(r"[^\d.]", "", str(base.get("fontSize") or ""))
+                if m_sz:
+                    sz = str(int(float(m_sz) * 100))
+                    a_ns = "http://schemas.openxmlformats.org/drawingml/2006/main"
+                    m_ns = "http://schemas.openxmlformats.org/officeDocument/2006/math"
+                    for omr in container.iter("{%s}r" % m_ns):
+                        omr.insert(0, omr.makeelement("{%s}rPr" % a_ns, {"sz": sz}))
                 continue
         except Exception as exc:
             WARN.append(f"公式 OMML 转换失败，退化纯文本: {exc}")
