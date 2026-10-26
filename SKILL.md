@@ -73,6 +73,14 @@ ppt-studio 是围绕 PPTD 格式的演示文稿创作与导出 skill。PPTD 是 
    pdftoppm -png -r 110 /tmp/<项目名>-qa/<项目名>.pdf /tmp/<项目名>-qa/page   # page-1.png…N.png
    ```
 
+   Windows（实测环境：Windows 11 + Git Bash）：LibreOffice 装在 `C:\Program Files\LibreOffice\program\soffice.exe` 且**不在 PATH**，Git Bash 下用完整路径调用：
+
+   ```bash
+   "/c/Program Files/LibreOffice/program/soffice.exe" --headless --norestore --convert-to pdf --outdir . <项目名>.pptx
+   ```
+
+   **不要把 LibreOffice 目录加进 PATH 来"修复"soffice 找不到**——其自带 Python/DLL 会污染 pip 安装的 Pillow（`ModuleNotFoundError: No module named 'PIL'`），导致图片 QA 挂掉：加 PATH 则 QA 挂、不加则 soffice 找不到，两头堵，完整路径调用是唯一稳态。首次启动较慢，适合后台执行；PDF 转图用已装的 poppler：`pdftoppm -png -r 110 <文件>.pdf <前缀>`。
+
 ### step5. 交付
 1. 项目目录自包含，永不交付孤立 manifest。**按内容自主命名**，不使用统一的 `deck`：
 
