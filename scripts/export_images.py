@@ -11,6 +11,7 @@
 """
 import argparse
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -32,21 +33,29 @@ def ensure_pptx(input_path: pathlib.Path, workdir: pathlib.Path) -> pathlib.Path
 def export_pngs_via_com(pptx: pathlib.Path, png_dir: pathlib.Path, width=1280, height=720):
     png_dir.mkdir(parents=True, exist_ok=True)
     ps = f"""
+$ErrorActionPreference = 'Stop'
 $pp = New-Object -ComObject PowerPoint.Application
-$pres = $pp.Presentations.Open('{str(pptx)}', $true, $false, $false)
-$pres.Export('{str(png_dir)}', 'PNG', {width}, {height})
-$pres.Close()
-$pp.Quit()
+# Open an untitled copy; do not quit PowerPoint because COM can reuse the user's instance.
+$pres = $pp.Presentations.Open('{str(pptx)}', $true, $true, $false)
+try {{
+    $pres.Export('{str(png_dir)}', 'PNG', {width}, {height})
+}} finally {{
+    $pres.Close()
+}}
 Write-Output exported
 """
     r = subprocess.run(["powershell", "-Command", ps], capture_output=True, text=True,
                        timeout=300)
     if "exported" not in r.stdout:
         raise RuntimeError(f"COM 导出失败: {r.stderr[:300]}")
-    # PowerPoint 中文环境输出 幻灯片N.PNG —— 统一改名为 N.png
-    files = sorted(png_dir.glob("幻灯片*.PNG")) or sorted(png_dir.glob("Slide*.PNG"))
+    # PowerPoint outputs SlideN.png or 幻灯片N.PNG. Sort by slide number, not name.
+    files = []
+    for path in png_dir.iterdir():
+        match = re.fullmatch(r"(?:Slide|幻灯片)([0-9]+)\.png", path.name, re.IGNORECASE)
+        if match and path.is_file():
+            files.append((int(match[1]), path))
     renamed = []
-    for i, f in enumerate(files, 1):
+    for i, (_, f) in enumerate(sorted(files), 1):
         dst = png_dir / f"{i}.png"
         shutil.move(str(f), str(dst))
         renamed.append(dst)

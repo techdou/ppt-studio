@@ -96,7 +96,7 @@ python scripts/handout_to_pptx.py --input-dir <讲义根目录> --out-dir <输�
   --label "小学 · 40 分钟"
 ```
 
-导出逐页图片做视觉 QA（需本机 PowerPoint）：
+导出逐页图片做视觉 QA（需本机 PowerPoint；脚本不关闭 PowerPoint 进程）：
 
 ```bash
 python scripts/export_images.py /abs/path/<项目名>/<项目名>.pptd \
@@ -122,7 +122,7 @@ node ui/server.mjs --project /abs/path/<项目名> --port 55280
 
 - chart 的 waterfall / heatmap / treemap / sunburst / candlestick 输出占位框
 - icon 以近似 emoji 渲染（约 60 个 FA 图标映射，未收录为 ★），非品牌图标
-- LaTeX 公式退化为纯文本
+- 独占文本元素的整段 LaTeX 公式支持 OMML；行内混排退化为纯文本
 - 贝塞尔曲线按折线渲染
 - 云字体（如 MiSans）未安装时回退本机字体
 - 图片 QA 依赖本机 Microsoft PowerPoint（COM）；kaleido 出图依赖 Chrome / Chromium

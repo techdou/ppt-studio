@@ -11,7 +11,4 @@ import export_pptx_local
 if __name__ == "__main__":
     import sys
     sys.argv[0] = "export_pptx.py"
-    # 本地引擎覆盖输出是安全默认（源为确定性渲染产物）
-    if "--force" not in sys.argv:
-        sys.argv.append("--force")
     export_pptx_local.main()

@@ -4,6 +4,7 @@
 .env
 .env.*
 *.env
+!.env.example
 credentials*
 *apikey*
 *api_key*
@@ -11,6 +12,9 @@ credentials*
 *.pem
 auth-state*
 *.session
+*secret*.json
+*token*.json
+*cookies*.json
 
 # ============================================================
 # 运行产物
@@ -28,6 +32,7 @@ __pycache__/
 .claude/
 .claude.json
 .zcode/
+.pi/
 .cursor/
 .windsurf/
 .kiro/
@@ -55,6 +60,11 @@ PRIVATE*
 *内部*
 draft/
 archive/
+devlog/
+*-private.md
+*.bak
+*.bak-*
+state/
 
 # ── 2026-10-27 统一范式补全（与 techdou 仓 .gitignore 标准对齐）──
 
